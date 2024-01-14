@@ -201,7 +201,7 @@ def update_log_widget(text=""):
 if __name__ == "__main__":
     # Create Tkinter window
     root = tk.Tk()
-    root.title("Set IP Address")
+    root.title("PS3RemotePad")
 
     # IP Entry
     ip_label = ttk.Label(root, text=f"Current IP: {ip}")
