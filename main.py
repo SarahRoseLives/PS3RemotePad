@@ -8,6 +8,14 @@ import threading
 ip = ''
 gamepad_thread = None
 
+def sendmsg(message):
+    try:
+        requests.get('http://' + ip + '/popup.ps3?' + message + '&snd=0')
+    except:
+        print('no device found')
+        ip_label.config(text="Current IP: " + ip + " (Device Not Found)")
+        pass
+
 def set_ip():
     global ip
     ip = ip_entry.get()
@@ -17,6 +25,7 @@ def set_ip():
 
 def update_ip_label():
     ip_label.config(text=f"Current IP: {ip}")
+
 
 def update_settings_file():
     try:
@@ -42,20 +51,16 @@ def read_settings_file():
             for line in file:
                 if line.startswith('ip='):
                     ip = line.split('=')[1].strip()
+                    sendmsg('Remote Gamepad Connected')
                     break
     except FileNotFoundError:
         pass
 
+
 # Read IP from settings file
 read_settings_file()
 
-def sendmsg(message):
-    try:
-        requests.get('http://' + ip + '/popup.ps3?' + message + '&snd=0')
-    except:
-        print('no device found')
-        ip_label.config(text="Current IP: " + ip + " (Device Not Found)")
-        pass
+
 
 def sendbutton(button):
     requests.get('http://' + ip + '/pad.ps3?' + button)
@@ -66,12 +71,15 @@ def handle_gamepad():
 
     if pygame.joystick.get_count() == 0:
         print("No gamepad connected.")
+        gamepad_label.config(text="No Gamepad Connected")
         return
 
     joystick = pygame.joystick.Joystick(0)
     joystick.init()
 
     print("Gamepad connected: {}".format(joystick.get_name()))
+    gamepad_label.config(text="Gamepad connected: {}".format(joystick.get_name()))
+
 
     # Initialize variables to store the previous state of the axes
     prev_axes_state = [0.0] * joystick.get_numaxes()
@@ -198,6 +206,9 @@ if __name__ == "__main__":
     # IP Entry
     ip_label = ttk.Label(root, text=f"Current IP: {ip}")
     ip_label.pack(pady=10)
+
+    gamepad_label = ttk.Label(root, text=f'No Gamepad Detected')
+    gamepad_label.pack(pady=5)
 
     ip_entry = ttk.Entry(root)
     ip_entry.insert(0, ip)
